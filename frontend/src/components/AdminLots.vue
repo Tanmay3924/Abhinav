@@ -6,47 +6,61 @@
     <div class="card mb-4 p-3 shadow-sm">
       <h5>Create Parking Lot</h5>
       <form @submit.prevent="createLot">
-
         <div class="mb-2">
-          <input v-model="form.prime_location_name"
-                 class="form-control"
-                 placeholder="Prime Location Name"
-                 required />
+          <input
+            v-model="form.prime_location_name"
+            class="form-control"
+            placeholder="Prime Location Name"
+            required
+          />
         </div>
 
         <div class="mb-2">
-          <input v-model="form.address"
-                 class="form-control"
-                 placeholder="Address"
-                 required />
+          <input
+            v-model="form.address"
+            class="form-control"
+            placeholder="Address"
+            required
+          />
         </div>
 
         <div class="mb-2">
-          <input v-model="form.pin_code"
-                 class="form-control"
-                 placeholder="Pin Code"
-                 required />
+          <input
+            v-model="form.pin_code"
+            class="form-control"
+            placeholder="Pin Code"
+            required
+          />
         </div>
 
         <div class="mb-2">
-          <input v-model="form.price_per_hour"
-                 type="number"
-                 step="0.01"
-                 class="form-control"
-                 placeholder="Price Per Hour"
-                 required />
+          <input
+            v-model="form.price_per_hour"
+            type="number"
+            step="0.01"
+            class="form-control"
+            placeholder="Price Per Hour"
+            required
+          />
         </div>
 
         <div class="mb-2">
-          <input v-model="form.number_of_spots"
-                 type="number"
-                 class="form-control"
-                 placeholder="Number of Spots"
-                 required />
+          <input
+            v-model="form.number_of_spots"
+            type="number"
+            class="form-control"
+            placeholder="Number of Spots"
+            required
+          />
         </div>
 
         <button class="btn btn-primary mt-2" :disabled="creating">
-          <span v-if="creating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span
+            v-if="creating"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
           <span v-else>Create Lot</span>
         </button>
       </form>
@@ -68,20 +82,30 @@
             <div>
               <strong>#{{ lot.id }}</strong> — {{ lot.prime_location_name }}
               <br />
-              <small class="text-muted">{{ lot.address }}, {{ lot.pin_code }}</small>
+              <small class="text-muted"
+                >{{ lot.address }}, {{ lot.pin_code }}</small
+              >
               <br />
-              <small class="badge bg-secondary">Spots: {{ lot.number_of_spots }}</small>
-              <small class="badge bg-info ms-2">Rs {{ lot.price_per_hour }}/hr</small>
+              <small class="badge bg-secondary"
+                >Spots: {{ lot.number_of_spots }}</small
+              >
+              <small class="badge bg-info ms-2"
+                >₹{{ lot.price_per_hour }}/hr</small
+              >
             </div>
 
             <div>
-              <button class="btn btn-sm btn-outline-primary me-2"
-                      @click="startEdit(lot)">
+              <button
+                class="btn btn-sm btn-outline-primary me-2"
+                @click="startEdit(lot)"
+              >
                 Edit
               </button>
 
-              <button class="btn btn-sm btn-outline-danger"
-                      @click="deleteLot(lot.id)">
+              <button
+                class="btn btn-sm btn-outline-danger"
+                @click="deleteLot(lot.id)"
+              >
                 Delete
               </button>
             </div>
@@ -91,45 +115,60 @@
           <div v-if="editingId === lot.id" class="mt-3 p-3 bg-light rounded">
             <h6>Edit Lot</h6>
 
-            <input v-model="editForm.prime_location_name"
-                   class="form-control mb-2"
-                   placeholder="Prime Location Name" />
+            <input
+              v-model="editForm.prime_location_name"
+              class="form-control mb-2"
+              placeholder="Prime Location Name"
+            />
 
-            <input v-model="editForm.address"
-                   class="form-control mb-2"
-                   placeholder="Address" />
+            <input
+              v-model="editForm.address"
+              class="form-control mb-2"
+              placeholder="Address"
+            />
 
-            <input v-model="editForm.pin_code"
-                   class="form-control mb-2"
-                   placeholder="Pin Code" />
+            <input
+              v-model="editForm.pin_code"
+              class="form-control mb-2"
+              placeholder="Pin Code"
+            />
 
-            <input v-model="editForm.price_per_hour"
-                   type="number"
-                   step="0.01"
-                   class="form-control mb-2"
-                   placeholder="Price Per Hour" />
+            <input
+              v-model="editForm.price_per_hour"
+              type="number"
+              step="0.01"
+              class="form-control mb-2"
+              placeholder="Price Per Hour"
+            />
 
-            <input v-model="editForm.number_of_spots"
-                   type="number"
-                   class="form-control mb-2"
-                   placeholder="Number of Spots" />
+            <input
+              v-model="editForm.number_of_spots"
+              type="number"
+              class="form-control mb-2"
+              placeholder="Number of Spots"
+            />
 
             <div class="mt-2">
-              <button class="btn btn-success btn-sm me-2"
-                      @click="saveEdit"
-                      :disabled="saving">
-                <span v-if="saving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <button
+                class="btn btn-success btn-sm me-2"
+                @click="saveEdit"
+                :disabled="saving"
+              >
+                <span
+                  v-if="saving"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
                 <span v-else>Save</span>
               </button>
 
-              <button class="btn btn-secondary btn-sm"
-                      @click="cancelEdit">
+              <button class="btn btn-secondary btn-sm" @click="cancelEdit">
                 Cancel
               </button>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -159,11 +198,11 @@ export default {
         address: "",
         pin_code: "",
         price_per_hour: "",
-        number_of_spots: ""
+        number_of_spots: "",
       },
 
       editingId: null,
-      editForm: {}
+      editForm: {},
     };
   },
 
@@ -202,7 +241,7 @@ export default {
           number_of_spots: Number.parseInt(this.form.number_of_spots || 0, 10),
           price_per_hour: Number.parseFloat(this.form.price_per_hour || 0),
           address: (this.form.address || "").trim(),
-          pin_code: (this.form.pin_code || "").trim()
+          pin_code: (this.form.pin_code || "").trim(),
         };
 
         const res = await api.post("/admin/lots", payload);
@@ -217,7 +256,7 @@ export default {
           address: "",
           pin_code: "",
           price_per_hour: "",
-          number_of_spots: ""
+          number_of_spots: "",
         };
       } catch (err) {
         console.error("CREATE ERROR:", err);
@@ -225,12 +264,17 @@ export default {
         if (err.response) {
           // server responded with a status code outside 2xx
           const status = err.response.status;
-          const serverMsg = err.response.data?.msg || JSON.stringify(err.response.data) || "";
-          alert(`Failed to create lot.\nStatus: ${status}\nMessage: ${serverMsg}`);
+          const serverMsg =
+            err.response.data?.msg || JSON.stringify(err.response.data) || "";
+          alert(
+            `Failed to create lot.\nStatus: ${status}\nMessage: ${serverMsg}`
+          );
         } else if (err.request) {
           // request was sent but no response (network/CORS)
           console.error("No response from server (request):", err.request);
-          alert("Failed to create lot. No response from server. Check backend and CORS.");
+          alert(
+            "Failed to create lot. No response from server. Check backend and CORS."
+          );
         } else {
           // some other error
           alert("Failed to create lot: " + err.message);
@@ -248,7 +292,7 @@ export default {
         address: lot.address || "",
         pin_code: lot.pin_code || "",
         price_per_hour: lot.price_per_hour || 0,
-        number_of_spots: lot.number_of_spots || 0
+        number_of_spots: lot.number_of_spots || 0,
       };
     },
 
@@ -267,7 +311,10 @@ export default {
           price_per_hour: Number.parseFloat(this.editForm.price_per_hour || 0),
           address: (this.editForm.address || "").trim(),
           pin_code: (this.editForm.pin_code || "").trim(),
-          number_of_spots: Number.parseInt(this.editForm.number_of_spots || 0, 10)
+          number_of_spots: Number.parseInt(
+            this.editForm.number_of_spots || 0,
+            10
+          ),
         };
 
         await api.put(`/admin/lots/${this.editingId}`, payload);
@@ -297,14 +344,22 @@ export default {
         const serverMsg = err.response?.data?.msg || err.message;
         alert("Failed to delete lot.\n" + serverMsg);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-.card { border-radius: 10px; }
-.border { font-size: 14px; }
-.spinner-border { vertical-align: baseline; }
-.bg-light { background: #f7fafc !important; }
+.card {
+  border-radius: 10px;
+}
+.border {
+  font-size: 14px;
+}
+.spinner-border {
+  vertical-align: baseline;
+}
+.bg-light {
+  background: #f7fafc !important;
+}
 </style>

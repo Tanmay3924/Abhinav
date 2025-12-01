@@ -10,8 +10,10 @@ from .models import User, Reservation
 from sqlalchemy import func
 from datetime import datetime, timedelta
 from . import db, cache
+from .tasks import export_reservations_csv
 
 admin_bp = Blueprint("admin", __name__)
+
 
 def admin_only():
     """
@@ -32,6 +34,7 @@ def admin_only():
     if not role or role != "admin":
         return jsonify({"msg": "Admins only"}), 403
     return None
+
 
 # ----------------------------
 #  CREATE A PARKING LOT
@@ -148,6 +151,7 @@ def create_lot():
         current_app.logger.error("Exception creating lot: %s\n%s", exc, traceback.format_exc())
         return jsonify({"msg": "Internal server error creating lot"}), 500
 
+
 # ----------------------------
 #  LIST LOTS
 # ----------------------------
@@ -163,6 +167,7 @@ def list_lots():
 
     lots = ParkingLot.query.order_by(ParkingLot.id.asc()).all()
     return jsonify({"lots": [lot.as_dict(include_spots=include_spots) for lot in lots]}), 200
+
 
 # ----------------------------
 #  UPDATE LOT
@@ -230,6 +235,7 @@ def update_lot(lot_id):
         db.session.rollback()
         current_app.logger.error("ERROR updating lot: %s\n%s", exc, traceback.format_exc())
         return jsonify({"msg": "Internal Server Error"}), 500
+
 
 # ----------------------------
 #  DELETE LOT
@@ -393,3 +399,25 @@ def get_analytics():
     except Exception as exc:
         current_app.logger.error("Analytics Error: %s", exc)
         return jsonify({"msg": "Error fetching analytics"}), 500
+@admin_bp.route("/export-csv", methods=["POST"])
+@jwt_required()
+def trigger_csv_export():
+    try:
+        err = admin_only()
+        if err: 
+            return err
+
+        identity = get_jwt_identity()
+        email = identity if isinstance(identity, str) else identity.get("email")
+
+        # Debug print
+        print("Export triggered by:", email)
+
+        task = export_reservations_csv.delay(email)
+
+        return jsonify({"msg": "CSV Export started!", "task_id": task.id}), 202
+
+    except Exception as e:
+        print("EXPORT CSV ERROR:", e)
+        import traceback; traceback.print_exc()
+        return jsonify({"msg": "Internal Server Error", "error": str(e)}), 500

@@ -5,7 +5,6 @@
       <p class="text-light mb-4 opacity-75">Welcome, {{ adminName }}!</p>
 
       <div class="row g-4">
-        <!-- Manage Lots -->
         <div class="col-md-4">
           <div class="card dash-card shadow">
             <div class="card-body text-center">
@@ -18,7 +17,6 @@
           </div>
         </div>
 
-        <!-- Users -->
         <div class="col-md-4">
           <div class="card dash-card shadow">
             <div class="card-body text-center">
@@ -31,7 +29,6 @@
           </div>
         </div>
 
-        <!-- Reservations -->
         <div class="col-md-4">
           <div class="card dash-card shadow">
             <div class="card-body text-center">
@@ -47,7 +44,6 @@
           </div>
         </div>
 
-        <!-- Analytics -->
         <div class="col-md-4">
           <div class="card dash-card shadow">
             <div class="card-body text-center">
@@ -60,18 +56,18 @@
           </div>
         </div>
 
-        <!-- CSV Export -->
         <div class="col-md-4">
           <div class="card dash-card shadow">
             <div class="card-body text-center">
               <h5 class="card-title">CSV Export</h5>
               <p class="card-text small">Export parking records.</p>
-              <button class="btn btn-secondary" disabled>Coming Soon</button>
+              <button class="btn btn-primary" @click="exportCSV">
+                Export CSV
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Logout -->
         <div class="col-md-4">
           <div class="card dash-card shadow">
             <div class="card-body text-center">
@@ -87,6 +83,9 @@
 </template>
 
 <script>
+// --- FIX: Import must be inside the script tag ---
+import api from "../api";
+
 export default {
   name: "AdminDash",
   data() {
@@ -106,6 +105,16 @@ export default {
       localStorage.removeItem("pz_token");
       localStorage.removeItem("pz_user");
       this.$router.push("/login");
+    },
+    async exportCSV() {
+      if (!confirm("Generate and email CSV report?")) return;
+      try {
+        const res = await api.post("/admin/export-csv");
+        alert(res.data.msg);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to start export job. Check backend logs.");
+      }
     },
   },
 };

@@ -4,14 +4,27 @@
 
     <div class="card mb-3 p-3 shadow-sm">
       <div class="d-flex gap-2 mb-2 align-items-center">
-        <input v-model="q" @input="onSearch" class="form-control" placeholder="Search by user email, spot id or remarks" />
-        <select v-model="filterStatus" class="form-select" style="width:160px;">
+        <input
+          v-model="q"
+          @input="onSearch"
+          class="form-control"
+          placeholder="Search by user email, spot id or remarks"
+        />
+        <select v-model="filterStatus" class="form-select" style="width: 160px">
           <option value="">All</option>
           <option value="active">Active</option>
           <option value="left">Left</option>
         </select>
-        <button class="btn btn-outline-secondary" @click="fetchReservations" :disabled="loading">
-          <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span> Refresh
+        <button
+          class="btn btn-outline-secondary"
+          @click="fetchReservations"
+          :disabled="loading"
+        >
+          <span
+            v-if="loading"
+            class="spinner-border spinner-border-sm me-2"
+          ></span>
+          Refresh
         </button>
       </div>
 
@@ -34,20 +47,33 @@
           </thead>
           <tbody>
             <tr v-if="filtered.length === 0">
-              <td colspan="9" class="text-center text-muted">No reservations found.</td>
+              <td colspan="9" class="text-center text-muted">
+                No reservations found.
+              </td>
             </tr>
 
             <tr v-for="(r, idx) in paged" :key="r.id">
               <td>{{ startIndex + idx + 1 }}</td>
-              <td>{{ r.user_email || r.user_id || '-' }}</td>
+              <td>{{ r.user_email || r.user_id || "-" }}</td>
               <td>{{ r.spot_id }}</td>
               <td>{{ formatDate(r.parked_at) }}</td>
-              <td>{{ r.left_at ? formatDate(r.left_at) : '—' }}</td>
-              <td>{{ r.left_at ? formatDuration(r.parked_at, r.left_at) : 'ongoing' }}</td>
-              <td>{{ r.cost != null ? `₹${r.cost}` : '—' }}</td>
-              <td class="text-truncate" style="max-width:150px;">{{ r.remarks || '' }}</td>
+              <td>{{ r.left_at ? formatDate(r.left_at) : "—" }}</td>
+              <td>
+                {{
+                  r.left_at ? formatDuration(r.parked_at, r.left_at) : "ongoing"
+                }}
+              </td>
+              <td>{{ r.cost != null ? `₹${r.cost}` : "—" }}</td>
+              <td class="text-truncate" style="max-width: 150px">
+                {{ r.remarks || "" }}
+              </td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary" @click="openReservation(r)">View</button>
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  @click="openReservation(r)"
+                >
+                  View
+                </button>
               </td>
             </tr>
           </tbody>
@@ -56,17 +82,29 @@
 
       <!-- pagination -->
       <div class="d-flex justify-content-between align-items-center mt-2">
-        <div class="small text-muted">Showing {{ filtered.length }} reservations</div>
+        <div class="small text-muted">
+          Showing {{ filtered.length }} reservations
+        </div>
         <nav v-if="pages > 1" aria-label="reservations pagination">
           <ul class="pagination mb-0">
-            <li :class="['page-item', {disabled: page === 1}]">
-              <a class="page-link" href="#" @click.prevent="page = page - 1">Prev</a>
+            <li :class="['page-item', { disabled: page === 1 }]">
+              <a class="page-link" href="#" @click.prevent="page = page - 1"
+                >Prev</a
+              >
             </li>
-            <li v-for="p in pages" :key="p" :class="['page-item', {active: p === page}]">
-              <a class="page-link" href="#" @click.prevent="page = p">{{ p }}</a>
+            <li
+              v-for="p in pages"
+              :key="p"
+              :class="['page-item', { active: p === page }]"
+            >
+              <a class="page-link" href="#" @click.prevent="page = p">{{
+                p
+              }}</a>
             </li>
-            <li :class="['page-item', {disabled: page === pages}]">
-              <a class="page-link" href="#" @click.prevent="page = page + 1">Next</a>
+            <li :class="['page-item', { disabled: page === pages }]">
+              <a class="page-link" href="#" @click.prevent="page = page + 1"
+                >Next</a
+              >
             </li>
           </ul>
         </nav>
@@ -78,25 +116,51 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Reservation — {{ selected ? `#${selected.id}` : '' }}</h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
+            <h5 class="modal-title">
+              Reservation — {{ selected ? `#${selected.id}` : "" }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="closeModal"
+            ></button>
           </div>
           <div class="modal-body">
             <div v-if="selected">
               <dl class="row">
-                <dt class="col-sm-4">Reservation ID</dt><dd class="col-sm-8">{{ selected.id }}</dd>
-                <dt class="col-sm-4">User</dt><dd class="col-sm-8">{{ selected.user_email || selected.user_id }}</dd>
-                <dt class="col-sm-4">Spot ID</dt><dd class="col-sm-8">{{ selected.spot_id }}</dd>
-                <dt class="col-sm-4">Parked At</dt><dd class="col-sm-8">{{ formatDate(selected.parked_at) }}</dd>
-                <dt class="col-sm-4">Left At</dt><dd class="col-sm-8">{{ selected.left_at ? formatDate(selected.left_at) : '— not left —' }}</dd>
-                <dt class="col-sm-4">Duration (sec)</dt><dd class="col-sm-8">{{ selected.left_at ? selected.duration_seconds : '—' }}</dd>
-                <dt class="col-sm-4">Cost</dt><dd class="col-sm-8">{{ selected.cost != null ? `₹${selected.cost}` : '—' }}</dd>
-                <dt class="col-sm-4">Remarks</dt><dd class="col-sm-8">{{ selected.remarks || '—' }}</dd>
+                <dt class="col-sm-4">Reservation ID</dt>
+                <dd class="col-sm-8">{{ selected.id }}</dd>
+                <dt class="col-sm-4">User</dt>
+                <dd class="col-sm-8">
+                  {{ selected.user_email || selected.user_id }}
+                </dd>
+                <dt class="col-sm-4">Spot ID</dt>
+                <dd class="col-sm-8">{{ selected.spot_id }}</dd>
+                <dt class="col-sm-4">Parked At</dt>
+                <dd class="col-sm-8">{{ formatDate(selected.parked_at) }}</dd>
+                <dt class="col-sm-4">Left At</dt>
+                <dd class="col-sm-8">
+                  {{
+                    selected.left_at
+                      ? formatDate(selected.left_at)
+                      : "— not left —"
+                  }}
+                </dd>
+                <dt class="col-sm-4">Duration (sec)</dt>
+                <dd class="col-sm-8">
+                  {{ selected.left_at ? selected.duration_seconds : "—" }}
+                </dd>
+                <dt class="col-sm-4">Cost</dt>
+                <dd class="col-sm-8">
+                  {{ selected.cost != null ? `₹${selected.cost}` : "—" }}
+                </dd>
+                <dt class="col-sm-4">Remarks</dt>
+                <dd class="col-sm-8">{{ selected.remarks || "—" }}</dd>
               </dl>
 
-              <hr/>
+              <hr />
               <h6>Raw JSON</h6>
-              <pre style="white-space:pre-wrap;">{{ pretty(selected) }}</pre>
+              <pre style="white-space: pre-wrap">{{ pretty(selected) }}</pre>
             </div>
             <div v-else class="text-muted">No reservation selected.</div>
           </div>
@@ -106,7 +170,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -134,7 +197,7 @@ export default {
       page: 1,
       perPage: 12,
       selected: null,
-      modalInstance: null
+      modalInstance: null,
     };
   },
   computed: {
@@ -142,16 +205,17 @@ export default {
       let list = this.reservations || [];
       if (this.q) {
         const s = this.q.toLowerCase();
-        list = list.filter(r =>
-          (r.user_email || "").toLowerCase().includes(s) ||
-          String(r.spot_id).includes(s) ||
-          (r.remarks || "").toLowerCase().includes(s)
+        list = list.filter(
+          (r) =>
+            (r.user_email || "").toLowerCase().includes(s) ||
+            String(r.spot_id).includes(s) ||
+            (r.remarks || "").toLowerCase().includes(s)
         );
       }
       if (this.filterStatus === "active") {
-        list = list.filter(r => !r.left_at);
+        list = list.filter((r) => !r.left_at);
       } else if (this.filterStatus === "left") {
-        list = list.filter(r => !!r.left_at);
+        list = list.filter((r) => !!r.left_at);
       }
       return list;
     },
@@ -164,37 +228,37 @@ export default {
     },
     startIndex() {
       return (this.page - 1) * this.perPage;
-    }
+    },
   },
   mounted() {
     this.fetchReservations();
   },
   methods: {
     pretty(obj) {
-      try { return JSON.stringify(obj, null, 2); } catch(e) { return String(obj); }
+      try {
+        return JSON.stringify(obj, null, 2);
+      } catch (e) {
+        return String(obj);
+      }
     },
-     formatDate(dateStr) {
-      // 1. Safety Check
+    formatDate(dateStr) {
       if (!dateStr) return "-";
 
-      // 2. Remove milliseconds if present (e.g., .123456)
+      // 1. Remove milliseconds if present
       const cleanDate = dateStr.split(".")[0];
 
-      // 3. Split into Date and Time (e.g., "2025-11-14" and "20:30:00")
+      // 2. Split into Date and Time
       const [datePart, timePart] = cleanDate.split("T");
-      if (!datePart || !timePart) return dateStr; // Fallback
+      if (!datePart || !timePart) return dateStr;
 
-      // 4. Split parts to format them manually
+      // 3. Manual Format (DD-MM-YYYY, HH:MM AM/PM)
       const [year, month, day] = datePart.split("-");
       let [hour, minute] = timePart.split(":");
 
-      // 5. Convert to 12-Hour Format (AM/PM) manually
       hour = parseInt(hour);
       const ampm = hour >= 12 ? "PM" : "AM";
-      hour = hour % 12 || 12; // Convert 0 to 12
+      hour = hour % 12 || 12;
 
-      // 6. Return the formatted string
-      // Result: "14-11-2025, 8:30 PM" (Exactly what is in the DB)
       return `${day}-${month}-${year}, ${hour}:${minute} ${ampm}`;
     },
     formatDuration(start, end) {
@@ -213,24 +277,33 @@ export default {
       try {
         const res = await api.get("/admin/reservations");
         // backend returns array "reservations"
-        this.reservations = (res.data && res.data.reservations) ? res.data.reservations.map(r => {
-          // enrich with user_email if backend includes nested user info
-          if (!r.user_email && r.user_id && r.user) {
-            r.user_email = r.user.email || r.user_id;
-          }
-          // helper: precompute duration_seconds for modal (if left_at present)
-          if (r.left_at) {
-            try {
-              r.duration_seconds = Math.round((new Date(r.left_at) - new Date(r.parked_at)) / 1000);
-            } catch {}
-          }
-          return r;
-        }) : [];
+        this.reservations =
+          res.data && res.data.reservations
+            ? res.data.reservations.map((r) => {
+                // enrich with user_email if backend includes nested user info
+                if (!r.user_email && r.user_id && r.user) {
+                  r.user_email = r.user.email || r.user_id;
+                }
+                // helper: precompute duration_seconds for modal (if left_at present)
+                if (r.left_at) {
+                  try {
+                    r.duration_seconds = Math.round(
+                      (new Date(r.left_at) - new Date(r.parked_at)) / 1000
+                    );
+                  } catch {}
+                }
+                return r;
+              })
+            : [];
         this.msgType = "alert-info";
       } catch (err) {
         console.error("fetchReservations error:", err);
         const server = err?.response?.data;
-        this.msg = server?.msg ?? (typeof server === "string" ? server : "Failed to fetch reservations");
+        this.msg =
+          server?.msg ??
+          (typeof server === "string"
+            ? server
+            : "Failed to fetch reservations");
         this.msgType = "alert-danger";
       } finally {
         this.loading = false;
@@ -242,7 +315,8 @@ export default {
     openReservation(r) {
       this.selected = r;
       const el = this.$refs.resModal;
-      if (this.modalInstance && this.modalInstance.hide) this.modalInstance.hide();
+      if (this.modalInstance && this.modalInstance.hide)
+        this.modalInstance.hide();
       this.modalInstance = showModal(el);
     },
     closeModal() {
@@ -251,12 +325,18 @@ export default {
         this.modalInstance = null;
       }
       this.selected = null;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-.table-hover tbody tr:hover { background: rgba(0,0,0,0.02); }
-pre { background: #f8f9fa; padding: .5rem; border-radius: 6px; }
+.table-hover tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+pre {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
 </style>

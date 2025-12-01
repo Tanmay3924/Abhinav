@@ -2,30 +2,71 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_mail import Mail
 from flask_caching import Cache
+from celery import Celery
+
+# -----------------------------
+# Extensions (Global)
+# -----------------------------
 db = SQLAlchemy()
 jwt = JWTManager()
+mail = Mail()
 cache = Cache()
 
+# Global Celery instance (empty for now)
+celery = Celery('app', broker=None, backend=None)
+
+
+
+# -----------------------------
+# Celery Factory
+# -----------------------------
+def make_celery(app):
+    celery.conf.broker_url = app.config['CELERY_BROKER_URL']
+    celery.conf.result_backend = app.config['CELERY_RESULT_BACKEND']
+    celery.conf.timezone = app.config.get("CELERY_TIMEZONE", "Asia/Kolkata")
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+
+# -----------------------------
+# Flask Application Factory
+# -----------------------------
 def create_app(config_class=None):
     app = Flask(__name__)
 
-    # Load config
+    # Load configuration
     if config_class:
         app.config.from_object(config_class)
     else:
         from .config import Config
         app.config.from_object(Config)
 
-    # Enable CORS (frontend <-> backend)
-    CORS(app)
+    # Enable CORS for frontend
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": "http://localhost:5173"}},
+        supports_credentials=True
+    )
 
-    # Initialize extensions
+    # Initialize Flask extensions
     db.init_app(app)
     jwt.init_app(app)
+    mail.init_app(app)
     cache.init_app(app)
 
-    # Register blueprints
+    # Initialize Celery WITH this Flask app config
+    global celery
+    celery = make_celery(app)
+
+    # Register Blueprints
     from .auth import auth_bp
     from .admin import admin_bp
     from .user import user_bp
@@ -34,21 +75,24 @@ def create_app(config_class=None):
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
     app.register_blueprint(user_bp, url_prefix="/api/user")
 
-    # Create all tables + seed admin
-    from .models import User
+    # Create DB tables + seed admin
     with app.app_context():
         db.create_all()
-        seed_admin(app, User)
+        seed_admin(app)
 
     return app
 
-def seed_admin(app, User):
-    """Creates admin user if not present."""
-    from . import db
 
-    admin_email = app.config["ADMIN_EMAIL"]
-    admin_pass = app.config["ADMIN_PASSWORD"]
+# -----------------------------
+# Seed Admin User
+# -----------------------------
+def seed_admin(app):
+    from .models import User
 
+    admin_email = app.config.get("ADMIN_EMAIL", "admin@example.com")
+    admin_pass = app.config.get("ADMIN_PASSWORD", "AdminPass123")
+
+    # Check if admin already exists
     existing = User.query.filter_by(email=admin_email).first()
 
     if not existing:
@@ -60,4 +104,5 @@ def seed_admin(app, User):
         admin.set_password(admin_pass)
         db.session.add(admin)
         db.session.commit()
-        print("Admin seeded:", admin_email)
+        print(f"✔ Admin created: {admin_email}")
+from . import tasks

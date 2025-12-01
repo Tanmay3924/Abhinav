@@ -38,6 +38,7 @@ class User(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
+
 class ParkingLot(db.Model):
     __tablename__ = "parking_lots"
 
@@ -65,6 +66,7 @@ class ParkingLot(db.Model):
         if include_spots:
             d["spots"] = [s.as_dict() for s in self.spots]
         return d
+
 
 class ParkingSpot(db.Model):
     __tablename__ = "parking_spots"
@@ -96,6 +98,7 @@ class ParkingSpot(db.Model):
         if include_reservations:
             d["reservations"] = [r.as_dict() for r in self.reservations]
         return d
+
 
 class Reservation(db.Model):
     __tablename__ = "reservations"
