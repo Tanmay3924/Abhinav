@@ -14,9 +14,8 @@ jwt = JWTManager()
 mail = Mail()
 cache = Cache()
 
-# Global Celery instance (empty for now)
+# Global Celery instance
 celery = Celery('app', broker=None, backend=None)
-
 
 
 # -----------------------------
@@ -27,8 +26,11 @@ def make_celery(app):
     celery.conf.result_backend = app.config['CELERY_RESULT_BACKEND']
     celery.conf.timezone = app.config.get("CELERY_TIMEZONE", "Asia/Kolkata")
     
-    # Add this line to fix the next warning:
+    # Enable Connection Retry (Fix for Celery 6.0 warning)
     celery.conf.broker_connection_retry_on_startup = True
+
+    # --- LOAD BEAT SCHEDULE ---
+    celery.conf.beat_schedule = app.config.get('CELERY_BEAT_SCHEDULE', {})
 
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
@@ -37,6 +39,8 @@ def make_celery(app):
 
     celery.Task = ContextTask
     return celery
+
+
 # -----------------------------
 # Flask Application Factory
 # -----------------------------
@@ -90,7 +94,7 @@ def create_app(config_class=None):
 def seed_admin(app):
     from .models import User
 
-    admin_email = app.config.get("ADMIN_EMAIL", "tanmay.aj2004@gmail.com")
+    admin_email = app.config.get("ADMIN_EMAIL", "admin@example.com")
     admin_pass = app.config.get("ADMIN_PASSWORD", "AdminPass123")
 
     # Check if admin already exists
