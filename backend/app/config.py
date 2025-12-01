@@ -16,7 +16,7 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=8)
 
     # 4. Admin Credentials
-    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "tanmay.aj2004@gmail.com")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "AdminPass123")
 
     # 5. Caching Config (Redis)

@@ -26,6 +26,9 @@ def make_celery(app):
     celery.conf.broker_url = app.config['CELERY_BROKER_URL']
     celery.conf.result_backend = app.config['CELERY_RESULT_BACKEND']
     celery.conf.timezone = app.config.get("CELERY_TIMEZONE", "Asia/Kolkata")
+    
+    # Add this line to fix the next warning:
+    celery.conf.broker_connection_retry_on_startup = True
 
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
@@ -34,8 +37,6 @@ def make_celery(app):
 
     celery.Task = ContextTask
     return celery
-
-
 # -----------------------------
 # Flask Application Factory
 # -----------------------------
@@ -89,7 +90,7 @@ def create_app(config_class=None):
 def seed_admin(app):
     from .models import User
 
-    admin_email = app.config.get("ADMIN_EMAIL", "admin@example.com")
+    admin_email = app.config.get("ADMIN_EMAIL", "tanmay.aj2004@gmail.com")
     admin_pass = app.config.get("ADMIN_PASSWORD", "AdminPass123")
 
     # Check if admin already exists

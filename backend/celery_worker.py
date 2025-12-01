@@ -1,7 +1,9 @@
 from app import create_app, celery
 
 app = create_app()
+app.app_context().push()
 
-celery.conf.update(app.config)
+# REMOVE THIS LINE:
+# celery.conf.update(app.config)
 
 import app.tasks
