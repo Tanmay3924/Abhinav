@@ -1,0 +1,56 @@
+# =====================
+# FRONTEND (Vue + Vite)
+# =====================
+
+node_modules/
+dist/
+dist-ssr/
+*.local
+*.log
+
+# Vite cache
+.cache/
+vite.svg
+
+# =====================
+# BACKEND (Python + Flask)
+# =====================
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite DB (generated programmatically)
+*.db
+app.db
+instance/
+
+# Environment variables (never push real secrets)
+.env
+
+# Flask / Python logs
+*.log
+
+# =====================
+# Editor / OS files
+# =====================
+
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =====================
+# Others
+# =====================
+
+# lock files (optional)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
